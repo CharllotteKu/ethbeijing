@@ -3,6 +3,7 @@ package com.example.ethbeijing.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.example.ethbeijing.common.R;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,18 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 @RestController
 @RequestMapping("/socket")
 public class SocketController {
 @GetMapping("/{hash}")
-    public void get(@PathVariable String hash) throws IOException {
+    public R<Object> get(@PathVariable String hash) throws IOException {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("hash", hash);
     String str = jsonObject.toJSONString();
     InetAddress addr = InetAddress.getLocalHost();
     String host="192.168.73.1";
+    String res;
     //String ip=addr.getHostAddress().toString(); //获取本机ip
     //log.info("调用远程接口:host=>"+ip+",port=>"+12345);
 
@@ -48,12 +49,15 @@ public class SocketController {
             sb.append(tmp).append('\n');
         System.out.print(sb);
         // 解析结果
-        //JSONArray res = JSON.parseArray(sb.toString());
+        res = JSON.toJSONString(sb.toString());
+        return R.success(res);
     } catch (IOException  e) {
         e.printStackTrace();
     } finally {
         try {if(socket!=null) socket.close();} catch (IOException e) {}
         System.out.print("远程接口调用结束.");
     }
+
+    return R.error("未知错误");
 }
 }
